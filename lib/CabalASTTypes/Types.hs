@@ -2,9 +2,11 @@
 module CabalASTTypes.Types
     (   
         type (!!!!) ((:!!))
+    ,   toStrictTuple
+    ,   fromStrictTuple
     ,   Whitespace
     ,   WhitespaceEnd
-    ,   LineEnder (LinuxLineEnd, WinLineEnd, LineEndOfFile)
+    ,   LineEnder (POSIXLineEnd, WinLineEnd, LineEndOfFile)
     ,   CommentLine (MkCommentLine)
     ,   Comment (MkComment)
     ,   Raw (MkRaw)
@@ -27,6 +29,13 @@ import Data.Bifunctor (Bifunctor, first, second, bimap)
 -- | Convenience strict tuple.
 
 data a !!!! b = !a :!! !b
+    deriving (Eq, Show)
+
+toStrictTuple :: ( a , b ) -> a !!!! b
+toStrictTuple (!a,!b) = a :!! b
+
+fromStrictTuple :: a !!!! b -> ( a , b )
+fromStrictTuple (a :!! b) = (a,b) 
 
 instance Bifunctor (!!!!) where
     bimap :: (a -> b) -> (c -> d) -> a !!!! c -> b !!!! d
@@ -50,24 +59,28 @@ type WhitespaceEnd = ByteString !!!! LineEnder
 -- | Presents a representation of LineEnders
 
 data LineEnder
-    = LinuxLineEnd
+    = POSIXLineEnd
     | WinLineEnd
     | LineEndOfFile
+    deriving (Eq, Show)
 
 -- | Data structure for comments that comprise a line, since
 -- comment lines will be used by both top-levels and stanzas.
 
 data CommentLine = MkCommentLine !Whitespace !Comment
+    deriving (Eq, Show)
 
 -- | Data structure for comments overall, since comments can
 -- comprise a line
 
 newtype Comment = MkComment (ByteString !!!! LineEnder)
+    deriving (Eq, Show)
 
 -- | Represents a length of data the parser could not parse.
 -- Ideally, for all valid cabal files, this should not exist.
 
 newtype Raw = MkRaw (ByteString !!!! LineEnder)
+    deriving (Eq, Show)
 
 -- | Top-level representation of a cabal file.
 
@@ -78,7 +91,10 @@ data CabalTopLevel
     | TLStanza !CabalStanza
     | TLField !CabalField
     | TLEOF
+    deriving (Eq, Show)
 
 data CabalStanza
+    deriving (Eq, Show)
 
 data CabalField
+    deriving (Eq, Show)
